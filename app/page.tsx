@@ -412,7 +412,7 @@ export default function Dashboard() {
                       <YAxis domain={['auto','auto']} hide />
                       <Tooltip
                         contentStyle={{ background: '#0d0d18', borderColor: '#1f2937', fontSize: 10 }}
-                        formatter={(v: any, name: string) => [`₹${Number(v).toLocaleString('en-IN')}`, name]}
+                        formatter={(v: any, name: any) => [`₹${Number(v).toLocaleString('en-IN')}`, name]}
                       />
                       <Line type="monotone" dataKey="actual"    stroke="#14b8a6" dot={false} strokeWidth={1.5} />
                       <Line type="monotone" dataKey="predicted" stroke="#d946ef" dot={false} strokeWidth={1.5} strokeDasharray="4 2" />
