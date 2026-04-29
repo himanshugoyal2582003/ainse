@@ -137,6 +137,11 @@ export default function Dashboard() {
   const [finalRec,       setFinalRec]       = useState<any>(null);
   const [lastRefresh,    setLastRefresh]    = useState('');
   const [animTick,       setAnimTick]       = useState(0); // drives live chart anim
+  const [isMounted,      setIsMounted]      = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const logEndRef   = useRef<HTMLDivElement>(null);
   const refreshRef  = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -309,74 +314,76 @@ export default function Dashboard() {
         ) : (
           <AnimatePresence mode="wait">
             <motion.div key={`chart-${animTick}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[380px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#14b8a6" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}    />
-                    </linearGradient>
-                    <linearGradient id="predGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#d946ef" stopOpacity={0.20} />
-                      <stop offset="95%" stopColor="#d946ef" stopOpacity={0}    />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval={tickInterval}
-                    tickFormatter={d => d.slice(5)} // show MM-DD
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                    tickLine={false}
-                    axisLine={false}
-                    domain={['auto', 'auto']}
-                    tickFormatter={v => `₹${(v / 1000).toFixed(1)}k`}
-                    width={55}
-                  />
-                  <Tooltip content={<CombinedTooltip />} />
-
-                  {/* Split date reference line */}
-                  {forecastData && (
-                    <ReferenceLine
-                      x={forecastData.split_date}
-                      stroke="#ffffff22"
-                      strokeDasharray="4 3"
-                      label={{ value: 'Today', fill: '#6b7280', fontSize: 10, position: 'insideTopRight' }}
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#14b8a6" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}    />
+                      </linearGradient>
+                      <linearGradient id="predGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#d946ef" stopOpacity={0.20} />
+                        <stop offset="95%" stopColor="#d946ef" stopOpacity={0}    />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10, fill: '#6b7280' }}
+                      tickLine={false}
+                      axisLine={false}
+                      interval={tickInterval}
+                      tickFormatter={d => d.slice(5)} // show MM-DD
                     />
-                  )}
+                    <YAxis
+                      tick={{ fontSize: 10, fill: '#6b7280' }}
+                      tickLine={false}
+                      axisLine={false}
+                      domain={['auto', 'auto']}
+                      tickFormatter={v => `₹${(v / 1000).toFixed(1)}k`}
+                      width={55}
+                    />
+                    <Tooltip content={<CombinedTooltip />} />
 
-                  {/* Historical area */}
-                  <Area
-                    type="monotone"
-                    dataKey="historical"
-                    stroke="#14b8a6"
-                    strokeWidth={2}
-                    fill="url(#histGrad)"
-                    dot={false}
-                    connectNulls={false}
-                    isAnimationActive={true}
-                    animationDuration={1500}
-                  />
+                    {/* Split date reference line */}
+                    {forecastData && (
+                      <ReferenceLine
+                        x={forecastData.split_date}
+                        stroke="#ffffff22"
+                        strokeDasharray="4 3"
+                        label={{ value: 'Today', fill: '#6b7280', fontSize: 10, position: 'insideTopRight' }}
+                      />
+                    )}
 
-                  {/* Predicted line (dashed) */}
-                  <Line
-                    type="monotone"
-                    dataKey="predicted"
-                    stroke="#d946ef"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                    connectNulls={false}
-                    isAnimationActive={true}
-                    animationDuration={2000}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
+                    {/* Historical area */}
+                    <Area
+                      type="monotone"
+                      dataKey="historical"
+                      stroke="#14b8a6"
+                      strokeWidth={2}
+                      fill="url(#histGrad)"
+                      dot={false}
+                      connectNulls={false}
+                      isAnimationActive={true}
+                      animationDuration={1500}
+                    />
+
+                    {/* Predicted line (dashed) */}
+                    <Line
+                      type="monotone"
+                      dataKey="predicted"
+                      stroke="#d946ef"
+                      strokeWidth={2}
+                      strokeDasharray="6 3"
+                      dot={false}
+                      connectNulls={false}
+                      isAnimationActive={true}
+                      animationDuration={2000}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
             </motion.div>
           </AnimatePresence>
         )}
@@ -406,18 +413,20 @@ export default function Dashboard() {
               <div>
                 <p className="text-[10px] text-gray-500 mb-2 uppercase tracking-widest">Actual vs Predicted (back-test)</p>
                 <div className="h-[120px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={acc.comparison.slice(-20)} margin={{ top:0, right:0, left:0, bottom:0 }}>
-                      <XAxis dataKey="date" hide />
-                      <YAxis domain={['auto','auto']} hide />
-                      <Tooltip
-                        contentStyle={{ background: '#0d0d18', borderColor: '#1f2937', fontSize: 10 }}
-                        formatter={(v: any, name: any) => [`₹${Number(v).toLocaleString('en-IN')}`, name]}
-                      />
-                      <Line type="monotone" dataKey="actual"    stroke="#14b8a6" dot={false} strokeWidth={1.5} />
-                      <Line type="monotone" dataKey="predicted" stroke="#d946ef" dot={false} strokeWidth={1.5} strokeDasharray="4 2" />
-                    </ComposedChart>
-                  </ResponsiveContainer>
+                  {isMounted && (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={acc.comparison.slice(-20)} margin={{ top:0, right:0, left:0, bottom:0 }}>
+                        <XAxis dataKey="date" hide />
+                        <YAxis domain={['auto','auto']} hide />
+                        <Tooltip
+                          contentStyle={{ background: '#0d0d18', borderColor: '#1f2937', fontSize: 10 }}
+                          formatter={(v: any, name: any) => [`₹${Number(v).toLocaleString('en-IN')}`, name]}
+                        />
+                        <Line type="monotone" dataKey="actual"    stroke="#14b8a6" dot={false} strokeWidth={1.5} />
+                        <Line type="monotone" dataKey="predicted" stroke="#d946ef" dot={false} strokeWidth={1.5} strokeDasharray="4 2" />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               </div>
 
