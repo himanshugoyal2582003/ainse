@@ -22,6 +22,7 @@ const STOCK_LIST = [
   { symbol: 'TATASTEEL', name: 'Tata Steel',           sector: 'Metals'    },
 ];
 const LIVE_REFRESH_MS = 60_000; // auto-refresh every 60 s
+const API_IP = process.env.NEXT_PUBLIC_API_IP || '34.136.55.49';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface PricePt   { date: string; price: number; type: 'historical' | 'predicted' }
@@ -168,10 +169,10 @@ export default function Dashboard() {
     retrain ? setIsTraining(true) : setIsRefreshing(true);
     try {
       const endpoint = retrain
-        ? `http://34.136.55.49:8000/retrain/${selectedStock.symbol}`
-        : `http://34.136.55.49:8000/forecast/${selectedStock.symbol}?days=30`;
+        ? `http://${API_IP}:8000/retrain/${selectedStock.symbol}`
+        : `http://${API_IP}:8000/forecast/${selectedStock.symbol}?days=30`;
       const res  = await fetch(endpoint);
-      const data = retrain ? await fetch(`http://34.136.55.49:8000/forecast/${selectedStock.symbol}?days=30`).then(r => r.json()) : await res.json();
+      const data = retrain ? await fetch(`http://${API_IP}:8000/forecast/${selectedStock.symbol}?days=30`).then(r => r.json()) : await res.json();
       setForecastData(data);
       setLastRefresh(new Date().toLocaleTimeString('en-IN'));
       setAnimTick(t => t + 1);
@@ -186,7 +187,7 @@ export default function Dashboard() {
   // ── Fetch news ────────────────────────────────────────────────────────────
   const fetchNews = useCallback(async () => {
     try {
-      const res  = await fetch(`http://34.136.55.49:8000/news/${selectedStock.symbol}`);
+      const res  = await fetch(`http://${API_IP}:8000/news/${selectedStock.symbol}`);
       const data = await res.json();
       setNewsData(data);
     } catch (e) { console.error('News error:', e); }
@@ -211,7 +212,7 @@ export default function Dashboard() {
     setLogs([{ type: 'status', message: `Initializing agents for ${selectedStock.symbol}...` }]);
     setTechData(null); setSentData(null); setRiskData(null); setFinalRec(null);
 
-    const ws = new WebSocket(`ws://34.136.55.49:8000/ws/analyze/${selectedStock.symbol}`);
+    const ws = new WebSocket(`ws://${API_IP}:8000/ws/analyze/${selectedStock.symbol}`);
     ws.onmessage = (ev) => {
       const d = JSON.parse(ev.data);
       if (d.status)  setLogs(p => [...p, { type: 'status', message: d.status }]);
