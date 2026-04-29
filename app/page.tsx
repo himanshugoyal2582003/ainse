@@ -43,6 +43,10 @@ interface NewsData {
   ticker: string; sentiment: string; score: number; articles: Article[];
 }
 
+
+
+
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const sentColor = (label: string) =>
   label === 'Positive' ? '#10b981' : label === 'Negative' ? '#ef4444' : '#6b7280';
